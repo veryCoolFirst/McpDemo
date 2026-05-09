@@ -1,11 +1,14 @@
 ﻿using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 
-var clientTransport = new StdioClientTransport(new StdioClientTransportOptions
+// var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? "http://localhost:3001/sse";
+var endpoint = Environment.GetEnvironmentVariable("ENDPOINT") ?? "http://localhost:3001";
+
+var clientTransport = new HttpClientTransport(new()
 {
-    Name = "Everything",
-    Command = "dotnet run",
-    Arguments = ["--project", @"E:\Tiancity\DevCode\McpDemo\McpServer\McpServer.csproj"],
+    Endpoint = new Uri(endpoint),
+    // TransportMode = HttpTransportMode.Sse,
+    TransportMode = HttpTransportMode.StreamableHttp
 });
 
 var client = await McpClient.CreateAsync(clientTransport);
@@ -24,11 +27,3 @@ var result = await client.CallToolAsync(
 
 // echo always returns one and only one text content object
 Console.WriteLine(result.Content.OfType<TextContentBlock>().First().Text);
-
-
-// var result2 = await client.CallToolAsync(
-//     "random",
-//     new Dictionary<string, object?>() { ["min"] = 10, ["max"] = 100 },
-//     cancellationToken: CancellationToken.None);
-
-// Console.WriteLine(result2.Content.OfType<TextContentBlock>().First().Text);
